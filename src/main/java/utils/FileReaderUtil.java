@@ -5,14 +5,51 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class FileReaderUtil {
+    
+    
     public static List<String> readCarRegistrations(String filename) {
         List<String> registrations = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = br.readLine()) != null) {
                 registrations.addAll(extractPattern(line));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return registrations;
+    }
+
+  
+    public static List<String> readCarRegistrationsFromCSV(String filename) {
+        List<String> registrations = new ArrayList<>();
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(filename));
+            for (String line : lines) {
+                registrations.addAll(extractPattern(line));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return registrations;
+    }
+
+  
+    public static List<String> readCarRegistrationsFromExcel(String filename) {
+        List<String> registrations = new ArrayList<>();
+        try (Workbook workbook = new XSSFWorkbook(filename)) {
+            Sheet sheet = workbook.getSheetAt(0); 
+            for (Row row : sheet) {
+                Cell cell = row.getCell(0); 
+                if (cell != null) {
+                    registrations.add(cell.getStringCellValue());
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
